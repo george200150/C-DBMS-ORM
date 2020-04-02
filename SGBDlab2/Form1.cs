@@ -1,23 +1,138 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-
 using System.Data.SqlClient;
+
 
 namespace SGBDlab2
 {
+
+    /** API DOCUMENTATION:
+     *  
+     *  - table format is: name numberOfFields fields:[pk1 pk2 .. pkn field1 field2 .. fieldx fk1 fk2 .. fkm]
+     *      - primary keys MUST ALWAYS be FIRST
+     *      - foreign keys MUST ALWAYS be LAST
+     *      - any other non-pk/-fk fields can be in any order
+     *      
+     *  - field format is: name type isPK isFK
+     *      - name must be exact the same one from the DB
+     *      - type must be the Exact ones the DBType enum uses
+     *      - the booleans isPK, isFK must be "true" or "false"
+     *      
+     *  - the API parses ONLY two Tables from the "config.xml" file.
+     *      - the FIRST Table is the PARENT Table
+     *      - the SECOND Table is the CHILD Table
+     *      - the API is NOT responsible with the faulty formats of the input (e.g. forgot pk-s, forgot fk-s, typos)
+     * 
+     * 
+     *  APP DOCUMENTATION:
+     *  
+     *  - the App will create on the fly FieldBoxes for the parent and child Fields and put them in a Panel
+     *  - the App will know where to find parent and child Fields independently.
+     *  - the App can handle creating queries for any number of pk-s, fk-s and Fields.
+     *      - a query builder is used to concatenate all the necessary Fields for the execution.
+     *      - it is best to know that ALL the pk-s and fk-s are considered INTEGERS - any other types will cause the App to crash.
+     * 
+     *  - the App does not automatically ignore pk-s or fk-s - you must do it manually:
+     *      - e.g. int startIndex = 0 + child.getPK().Count; //avoid considering PK-s
+     *      - e.g. int upperLimit = child.Fields.Count - child.getFK().Count; //avoid considering FK-s
+     *  - the App supports looking for Fields by their position in their source Table.
+     *      - e.g. to get the pk-s from Parent Table, you must
+     *              int index = 0;
+     *              foreach (Field field in parent.getPK())
+     *              {
+     *                  getParentTextBoxByNumber(index).Text = dataGridViewParent.CurrentRow.Cells[index].Value.ToString();
+     *                  index++;
+     *              }
+     *  - the App does NOT support getting Fields by their name.
+     *  - the App ONLY supports DataTypes that have a ToString() method - in order to show the values in the TextBox-es.
+     *  - the App does NOT support displaying tables with a number of Fields larger than 7.
+     */
 
     public partial class Form1 : Form
     {
 
         Table parent;
         Table child;
+        List<TextBox> textInputs = new List<TextBox>();
+
+
+        private TextBox getParentTextBoxByNumber(int index) // index is between 0 and parent.NoFields-1
+        {
+            return textInputs[index];
+        }
+
+        private TextBox getChildTextBoxByNumber(int index) // index is between 0 and parent.NoFields-1 (NOTA BENE: ALWAYS!!! THE PK-s ARE FIRST)
+        {
+            return textInputs[parent.Nofields + index]; // map position
+        }
+
+
+        // DA BEES' KNEES.
+        private void Gener8()
+        {
+            int x = 100;
+            int y = 0;
+            for (int i = 0; i < parent.Nofields; i++)
+            {
+                Label labeli = new Label
+                {
+                    Location = new System.Drawing.Point(x-100, y),
+                    Name = "labelParent" + i.ToString(),
+                    Text = parent.Fields[i].Fname,
+                    Size = new System.Drawing.Size(171, 20),
+                    TabIndex = 4,
+                };
+
+
+                TextBox textboxi = new TextBox
+                {
+                    Location = new System.Drawing.Point(x, y),
+                    Name = "textBoxParent" + i.ToString(),
+                    Size = new System.Drawing.Size(171, 20),
+                    TabIndex = 4,
+                };
+                y += 30;
+                this.Controls.Add(textboxi);
+                this.textInputs.Add(textboxi);
+                this.panel1.Controls.Add(textboxi);
+                this.panel1.Controls.Add(labeli);
+            }
+
+
+            x = 500;
+            y = 0;
+            for (int i = 0; i < child.Nofields; i++)
+            {
+                Label labeli = new Label
+                {
+                    Location = new System.Drawing.Point(x-100, y),
+                    Name = "labelChild" + i.ToString(),
+                    Text = child.Fields[i].Fname,
+                    Size = new System.Drawing.Size(171, 20),
+                    TabIndex = 4,
+                };
+
+
+                TextBox textboxi = new TextBox
+                {
+                    Location = new System.Drawing.Point(x, y),
+                    Name = "textBoxChild" + i.ToString(),
+                    Size = new System.Drawing.Size(171, 20),
+                    TabIndex = 4,
+                };
+
+                y += 30;
+                this.Controls.Add(textboxi);
+                this.textInputs.Add(textboxi);
+                this.panel1.Controls.Add(textboxi);
+                this.panel1.Controls.Add(labeli);
+            }
+        }
+        
+
+
 
         SqlConnection connection = new SqlConnection(@"Data Source=DESKTOP-A1S24IB\SQLEXPRESS;Initial Catalog=movie;Integrated Security=True");
         //SqlConnection connection = new SqlConnection("Data Source=DESKTOP-A1S24IB\\SQLEXPRESS;Initial Catalog=...;Integrated Security=True");
@@ -33,14 +148,10 @@ namespace SGBDlab2
             InitializeComponent();
             this.parent = parent;
             this.child = child;
-            dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dataGridView2.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            //numericUpDown2.Maximum = 2020;
-            //numericUpDown2.Minimum = 1800;
-            //numericUpDown2.Value = 2020;
+            dataGridViewParent.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dataGridViewChild.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
 
-            //TODO: create TextField-s and Label-s for each Table
-
+            Gener8();
         }
 
         private void button1_Click(object sender, EventArgs e) // - să se afişeze toate înregistrările tabelei părinte;
@@ -51,7 +162,7 @@ namespace SGBDlab2
             adapter.SelectCommand = new SqlCommand(queryString, connection);
             data.Clear();
             adapter.Fill(data);
-            dataGridView1.DataSource = data.Tables[0];//luam tabelul returnat de query
+            dataGridViewParent.DataSource = data.Tables[0];//luam tabelul returnat de query
         }
 
         private void button2_Click(object sender, EventArgs e) // insert
@@ -61,23 +172,24 @@ namespace SGBDlab2
                 //adapter.InsertCommand = new SqlCommand("INSERT INTO " + child.Name + " " + child.GetInsertParamsString() + " VALUES " + child.GetInsertAtParamsString(), connection); //TODO: variable number of insert fields
                 string queryString = SQLQueryBuilder.InsertCommand(child);
                 adapter.InsertCommand = new SqlCommand(queryString, connection);
-                adapter.InsertCommand.Parameters.Add("@titlu", SqlDbType.VarChar).Value = textBox1.Text; //TODO: variable number of insert fields
-                adapter.InsertCommand.Parameters.Add("@an_aparitie", SqlDbType.Int).Value = numericUpDown2.Text; //TODO: variable number of insert fields
-                adapter.InsertCommand.Parameters.Add("@cod_director", SqlDbType.Int).Value = (int)dataGridView1.CurrentRow.Cells[0].Value; //TODO: variable number of insert fields
+                int index = 0 + child.getPK().Count; //avoid considering PK-s
+                foreach (Field field in child.getNonPK())
+                {
+                    Enum.TryParse(field.Type, out DbType type);
+                    adapter.InsertCommand.Parameters.Add("@" + field.Fname, type).Value = getChildTextBoxByNumber(index).Text;
+                    index += 1;
+                }
                 connection.Open();
                 adapter.InsertCommand.ExecuteNonQuery();
-                //connection.Close();
                 MessageBox.Show("ADAUGAT!");
             }
             catch (NullReferenceException)
             {
                 MessageBox.Show("SELECTATI O INREGISTRARE DIN TABELUL PARINTE!");
-                //connection.Close();
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
-                //connection.Close();
             }
             finally
             {
@@ -93,11 +205,16 @@ namespace SGBDlab2
                 string queryString = SQLQueryBuilder.SelectWhereCommand(child);
                 adapter2.SelectCommand = new SqlCommand(queryString, connection);
 
-                int value = (int)dataGridView1.CurrentRow.Cells[0].Value;
-                adapter2.SelectCommand.Parameters.Add("@cod_director", SqlDbType.Int).Value = value;
+                //parametrize primary keys number (consider all of them when querying)
+                int index = 0;
+                foreach(Field pk in parent.getPK()) //NOTA BENE: ALL THE PK-s ARE INT TYPES !!!
+                {
+                    int value = (int)dataGridViewParent.CurrentRow.Cells[index].Value;
+                    adapter2.SelectCommand.Parameters.Add("@"+pk.Fname, SqlDbType.Int).Value = value;
+                }
                 data2.Clear();
                 adapter2.Fill(data2);
-                dataGridView2.DataSource = data2.Tables[0];//luam tabelul returnat de query
+                dataGridViewChild.DataSource = data2.Tables[0];//luam tabelul returnat de query
             }
             catch (Exception)
             {
@@ -105,35 +222,16 @@ namespace SGBDlab2
             }
         }
 
-        //TODO: this is not parametrised !!!
+        
         private void dataGridView2_CellContentClick(object sender, DataGridViewCellEventArgs e) // incarc field-urile copilului
         { // la selectarea unei înregistrări din fiu, trebuie să se permită ştergerea sau actualizarea datelor acesteia
-            DataGridViewRow row = dataGridView2.CurrentRow;
+            DataGridViewRow row = dataGridViewChild.CurrentRow;
             if (row.Cells[1].Value is System.DBNull)
                 return;
-            string titlu = (string)row.Cells[1].Value;
-            int an_aparitie = (int)row.Cells[2].Value;
-            int cod_director = (int)row.Cells[3].Value;
-
-            textBox2.Text = titlu;
-
-            //numericUpDown1.Maximum = 2020;
-            //numericUpDown1.Minimum = 1800;
-            //numericUpDown1.Value = an_aparitie;
-
-            List<int> directorList = new List<int>();
-
-            foreach (DataGridViewRow oneRow in dataGridView1.Rows)
+            for(int index=0; index < child.Nofields; index++)
             {
-                Object value = oneRow.Cells[0].Value;
-                if (value != null)
-                {
-                    int cod = (int)value;
-                    directorList.Add(cod);
-                }
+                getChildTextBoxByNumber(index).Text = row.Cells[index].Value.ToString();
             }
-            //comboBox1.DataSource = directorList;
-            comboBox1.Text = cod_director.ToString();
         }
 
         private void button3_Click(object sender, EventArgs e) // sterge
@@ -143,26 +241,23 @@ namespace SGBDlab2
                 //adapter.DeleteCommand = new SqlCommand("DELETE FROM " + child.Name + " WHERE " + child.getPK()[0].Fname + " = @cod_film", connection); //TODO: what if multiple pk-s
                 string queryString = SQLQueryBuilder.DeleteCommand(child);
                 adapter.DeleteCommand = new SqlCommand(queryString, connection);
-                List<Field> pks = child.getPK();
-                foreach (Field pk in pks)
+                int index = 0; // PK-s are ALWAYS FIRST IN ANY TABLE !!!
+                foreach (Field pk in child.getPK())
                 {
-                    adapter.DeleteCommand.Parameters.Add(pk.Fname, SqlDbType.Int).Value = (int)dataGridView2.CurrentRow.Cells[0].Value; // WWWWWWWWWW TODO WWWWWWWWWW : problema e ca nu stiu unde sunt pk-urile in tabel... .Cells[0] !!!
+                    adapter.DeleteCommand.Parameters.Add(pk.Fname, SqlDbType.Int).Value = (int)dataGridViewChild.CurrentRow.Cells[index].Value;
+                    index += 1;
                 }
-                //adapter.DeleteCommand.Parameters.Add("@cod_film", SqlDbType.Int).Value = (int)dataGridView2.CurrentRow.Cells[0].Value;
                 connection.Open();
                 adapter.DeleteCommand.ExecuteNonQuery();
-                //connection.Close();
                 MessageBox.Show("STERS!");
             }
             catch (NullReferenceException)
             {
                 MessageBox.Show("SELECTATI O INREGISTRARE DIN TABELUL FIU!");
-                //connection.Close();
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
-                //connection.Close();
             }
             finally
             {
@@ -177,38 +272,43 @@ namespace SGBDlab2
                 //adapter.UpdateCommand = new SqlCommand("UPDATE " + child.Name + " SET titlu = @titlu ,an_aparitie = @an_aparitie, cod_director = @cod_director WHERE " + child.getPK()[0].Fname + " = @cod_film", connection);
                 string queryString = SQLQueryBuilder.UpdateCommand(child);
                 adapter.UpdateCommand = new SqlCommand(queryString, connection);
-                List<Field> nonpks = child.getNonPK();
-                foreach (Field f in nonpks)
+                int index = 0;
+                foreach (Field f in child.Fields)
                 {
-                    if (f.Type.Equals(DataTypeEnum.STRING))
-                        adapter.UpdateCommand.Parameters.Add(f.Fname, SqlDbType.VarChar).Value = textBox2.Text; //TODO: maybe specify source input for each field in the beginning???
-                    else if (f.Type.Equals(DataTypeEnum.INT))
-                        adapter.UpdateCommand.Parameters.Add(f.Fname, SqlDbType.Int).Value = numericUpDown1.Text; //TODO: still hardcoded !!!   //= (int)dataGridView2.CurrentRow.Cells[0].Value;
-                    else if (f.Type.Equals(DataTypeEnum.DATE))
-                        adapter.UpdateCommand.Parameters.Add(f.Fname, SqlDbType.Date).Value = comboBox1.Text; //TODO: still hardcoded !!!
+                    Enum.TryParse(f.Type, out DbType type);
+                    adapter.UpdateCommand.Parameters.Add("@"+f.Fname, type).Value = getChildTextBoxByNumber(index).Text;
+                    index++;
                 }
-                //adapter.UpdateCommand.Parameters.Add("@titlu", SqlDbType.VarChar).Value = textBox2.Text;
-                //adapter.UpdateCommand.Parameters.Add("@an_aparitie", SqlDbType.Int).Value = numericUpDown1.Value;
-                //adapter.UpdateCommand.Parameters.Add("@cod_director", SqlDbType.Int).Value = comboBox1.SelectedValue;
-                //adapter.UpdateCommand.Parameters.Add("@cod_film", SqlDbType.Int).Value = (int)dataGridView2.CurrentRow.Cells[0].Value;
                 connection.Open();
                 adapter.UpdateCommand.ExecuteNonQuery();
-                //connection.Close();
                 MessageBox.Show("MODIFICAT!");
             }
             catch (NullReferenceException)
             {
                 MessageBox.Show("SELECTATI O INREGISTRARE DIN TABELUL FIU!");
-                //connection.Close();
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
-                //connection.Close();
             }
             finally
             {
                 connection.Close();
+            }
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void dataGridViewParent_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            int index = 0;
+            foreach (Field field in parent.Fields)
+            {
+                getParentTextBoxByNumber(index).Text = dataGridViewParent.CurrentRow.Cells[index].Value.ToString();
+                index++;
             }
         }
     }

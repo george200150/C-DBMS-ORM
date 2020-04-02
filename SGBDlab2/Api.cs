@@ -1,30 +1,25 @@
 ﻿using System;
-using System.Windows.Forms;
-using System.Xml;
 
+using System.Xml;
 
 namespace SGBDlab2
 {
-    static class Program
+    public class Api
     {
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
-        [STAThread]
-        static void Main()
+        XmlElement tablesNode;
+
+        public Api()
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-
-
-            Api api = new Api();
             XmlDocument doc = new XmlDocument();
             doc.Load("C:\\Users\\George\\source\\repos\\SGBDlab2\\SGBDlab2\\config.xml");
 
             //FirstChild is  the root "tables"
 
-            XmlElement tablesNode = doc.DocumentElement; // tables node
+            this.tablesNode = doc.DocumentElement; // tables node
+        }
 
+        public Table GetParent()
+        {
             Table parent = new Table();
             XmlNode parentNode = tablesNode.ChildNodes[0];
 
@@ -52,18 +47,21 @@ namespace SGBDlab2
                 };
                 parent.Fields.Add(field);
             }
-            //////Table parent = api.GetParent();
+            return parent;
+        }
+
+        public Table getChild()
+        {
 
 
             Table child = new Table();
             XmlNode childNode = tablesNode.ChildNodes[1];
 
-            name = childNode.ChildNodes[0].InnerText; // DIRECTOR
+            string name = childNode.ChildNodes[0].InnerText;
             child.Name = name;
-            nofields = int.Parse(childNode.ChildNodes[1].InnerText); // 3
+            int nofields = int.Parse(childNode.ChildNodes[1].InnerText);
             child.Nofields = nofields;
-            fields = childNode.ChildNodes[2]; // fields node (contains 'nofields' values)
-
+            XmlNode fields = childNode.ChildNodes[2];
             for (int i = 0; i < nofields; i++)
             {
                 XmlNode f = fields.ChildNodes[i];
@@ -82,10 +80,7 @@ namespace SGBDlab2
                 };
                 child.Fields.Add(field);
             }
-            //////Table child = api.getChild();
-
-            //WARNING: for some reason, the app will not perform well if the api instance is used, so I used the code in-place.
-            Application.Run(new Form1(parent, child));
+            return child;
         }
     }
 }

@@ -6,24 +6,24 @@
     <fields>
       <field>
         <fname>cod_director</fname>
-        <type>INT</type>
+        <type>Int</type>
         <isPK>true</isPK>
         <idFK>false</idFK>
-        <inputSource>comboBox1</inputSource>
+        <!--<inputSource>comboBox1</inputSource>-->
       </field>
       <field>
         <fname>nume</fname>
-        <type>STRING</type>
+        <type>VarChar</type>
         <isPK>false</isPK>
         <idFK>false</idFK>
-        <inputSource>NONE</inputSource>
+        <!--<inputSource>NONE</inputSource>-->
       </field>
       <field>
         <fname>data_nastere</fname>
-        <type>DATE</type>
+        <type>Date</type>
         <isPK>false</isPK>
         <idFK>false</idFK>
-        <inputSource>NONE</inputSource>
+        <!--<inputSource>NONE</inputSource>-->
       </field>
     </fields>
   </parent>
@@ -33,30 +33,31 @@
     <fields>
       <field>
         <fname>cod_film</fname>
-        <type>INT</type>
+        <type>Int</type>
         <isPK>true</isPK>
         <idFK>false</idFK>
-        <inputSource>NONE</inputSource>
+        <!--<inputSource>NONE</inputSource>-->
       </field>
       <field>
         <fname>titlu</fname>
-        <type>STRING</type>
+        <type>VarChar</type>
         <isPK>false</isPK>
         <idFK>false</idFK>
-        <inputSource>textBox2</inputSource>
+        <!--<inputSource>textBox2</inputSource>-->
       </field>
       <field>
         <fname>an_aparitie</fname>
-        <type>INT</type>
+        <type>Int</type>
         <isPK>false</isPK>
         <idFK>false</idFK>
-        <inputSource>numericUpDown1</inputSource>
+        <!--<inputSource>numericUpDown1</inputSource>-->
       </field>
       <field>
         <fname>cod_director</fname>
-        <type>INT</type>
+        <type>Int</type>
         <isPK>false</isPK>
         <idFK>true</idFK>
+        <!--<inputSource>ceva...</inputSource>-->
       </field>
     </fields>
   </child>

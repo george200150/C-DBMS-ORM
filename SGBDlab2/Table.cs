@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Windows.Forms;
+
 
 namespace SGBDlab2
 {
@@ -39,18 +36,12 @@ namespace SGBDlab2
             ...
         </fields>
          */
-    public enum DataTypeEnum
-    {
-        INT = 0,
-        STRING = 1,
-        DATE = 2
-        /*TODO: add more types if needed*/
-    }
+
 
     public class Field
     {
         public string Fname { get; set; }
-        public DataTypeEnum Type { get; set; } //TODO: maybe we don't need an enum type afterall...
+        public string Type { get; set; }
         public bool IsPK { get; set; }
         public bool IsFK { get; set; }
         public TextBox InputSource { get; set; } //unfortunately, I had to hardcode the input type to TextBox.
