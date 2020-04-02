@@ -1,63 +1,86 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <tables>
   <parent>
-    <name>Director</name>
-    <nofields>3</nofields>
+    <name>Parent</name>
+    <nofields>5</nofields>
     <fields>
       <field>
-        <fname>cod_director</fname>
+        <fname>cod_fk1</fname>
         <type>Int</type>
         <isPK>true</isPK>
         <idFK>false</idFK>
-        <!--<inputSource>comboBox1</inputSource>-->
+      </field>
+      <field>
+        <fname>cod_fk2</fname>
+        <type>Int</type>
+        <isPK>true</isPK>
+        <idFK>false</idFK>
+      </field>
+      <field>
+        <fname>cod_fk3</fname>
+        <type>Int</type>
+        <isPK>true</isPK>
+        <idFK>false</idFK>
+      </field>
+      <field>
+        <fname>cod_fk4</fname>
+        <type>Int</type>
+        <isPK>true</isPK>
+        <idFK>false</idFK>
       </field>
       <field>
         <fname>nume</fname>
         <type>VarChar</type>
         <isPK>false</isPK>
         <idFK>false</idFK>
-        <!--<inputSource>NONE</inputSource>-->
-      </field>
-      <field>
-        <fname>data_nastere</fname>
-        <type>Date</type>
-        <isPK>false</isPK>
-        <idFK>false</idFK>
-        <!--<inputSource>NONE</inputSource>-->
       </field>
     </fields>
   </parent>
   <child>
-    <name>Filme</name>
-    <nofields>4</nofields>
+    <name>Child</name>
+    <nofields>7</nofields>
     <fields>
       <field>
-        <fname>cod_film</fname>
+        <fname>cod_pk1</fname>
         <type>Int</type>
         <isPK>true</isPK>
         <idFK>false</idFK>
-        <!--<inputSource>NONE</inputSource>-->
       </field>
       <field>
-        <fname>titlu</fname>
+        <fname>field1</fname>
         <type>VarChar</type>
         <isPK>false</isPK>
         <idFK>false</idFK>
-        <!--<inputSource>textBox2</inputSource>-->
       </field>
       <field>
-        <fname>an_aparitie</fname>
-        <type>Int</type>
+        <fname>field2</fname>
+        <type>VarChar</type>
         <isPK>false</isPK>
         <idFK>false</idFK>
-        <!--<inputSource>numericUpDown1</inputSource>-->
       </field>
       <field>
-        <fname>cod_director</fname>
+        <fname>cod_fk1</fname>
         <type>Int</type>
         <isPK>false</isPK>
         <idFK>true</idFK>
-        <!--<inputSource>ceva...</inputSource>-->
+      </field>
+      <field>
+        <fname>cod_fk2</fname>
+        <type>Int</type>
+        <isPK>false</isPK>
+        <idFK>true</idFK>
+      </field>
+      <field>
+        <fname>cod_fk3</fname>
+        <type>Int</type>
+        <isPK>false</isPK>
+        <idFK>true</idFK>
+      </field>
+      <field>
+        <fname>cod_fk4</fname>
+        <type>Int</type>
+        <isPK>false</isPK>
+        <idFK>true</idFK>
       </field>
     </fields>
   </child>

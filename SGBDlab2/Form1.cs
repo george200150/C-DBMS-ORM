@@ -24,6 +24,8 @@ namespace SGBDlab2
      *      - the FIRST Table is the PARENT Table
      *      - the SECOND Table is the CHILD Table
      *      - the API is NOT responsible with the faulty formats of the input (e.g. forgot pk-s, forgot fk-s, typos)
+     *      
+     *  - the API does NOT support different names for the fk-s that reference the pk-s.
      * 
      * 
      *  APP DOCUMENTATION:
@@ -130,11 +132,11 @@ namespace SGBDlab2
                 this.panel1.Controls.Add(labeli);
             }
         }
-        
 
 
 
-        SqlConnection connection = new SqlConnection(@"Data Source=DESKTOP-A1S24IB\SQLEXPRESS;Initial Catalog=movie;Integrated Security=True");
+        //SqlConnection connection = new SqlConnection(@"Data Source=DESKTOP-A1S24IB\SQLEXPRESS;Initial Catalog=movie;Integrated Security=True");
+        SqlConnection connection = new SqlConnection(@"Data Source=DESKTOP-A1S24IB\SQLEXPRESS;Initial Catalog=labsgbd;Integrated Security=True");
         //SqlConnection connection = new SqlConnection("Data Source=DESKTOP-A1S24IB\\SQLEXPRESS;Initial Catalog=...;Integrated Security=True");
         SqlDataAdapter adapter = new SqlDataAdapter();
         SqlDataAdapter adapter2 = new SqlDataAdapter();
@@ -215,6 +217,14 @@ namespace SGBDlab2
                 data2.Clear();
                 adapter2.Fill(data2);
                 dataGridViewChild.DataSource = data2.Tables[0];//luam tabelul returnat de query
+
+
+                index = 0;
+                foreach (Field field in parent.Fields)
+                {
+                    getParentTextBoxByNumber(index).Text = dataGridViewParent.CurrentRow.Cells[index].Value.ToString();
+                    index++;
+                }
             }
             catch (Exception)
             {
@@ -280,8 +290,15 @@ namespace SGBDlab2
                     index++;
                 }
                 connection.Open();
-                adapter.UpdateCommand.ExecuteNonQuery();
-                MessageBox.Show("MODIFICAT!");
+                int numberOfRowsAffected = adapter.UpdateCommand.ExecuteNonQuery();
+                if(numberOfRowsAffected == 0)
+                {
+                    MessageBox.Show("NU S-A GASIT INREGISTRAREA!");
+                }
+                else
+                {
+                    MessageBox.Show("MODIFICAT!");
+                }
             }
             catch (NullReferenceException)
             {
@@ -300,16 +317,6 @@ namespace SGBDlab2
         private void Form1_Load(object sender, EventArgs e)
         {
 
-        }
-
-        private void dataGridViewParent_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-            int index = 0;
-            foreach (Field field in parent.Fields)
-            {
-                getParentTextBoxByNumber(index).Text = dataGridViewParent.CurrentRow.Cells[index].Value.ToString();
-                index++;
-            }
         }
     }
 }

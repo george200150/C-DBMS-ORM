@@ -44,9 +44,6 @@ namespace SGBDlab2
         public string Type { get; set; }
         public bool IsPK { get; set; }
         public bool IsFK { get; set; }
-        public TextBox InputSource { get; set; } //unfortunately, I had to hardcode the input type to TextBox.
-        //TODO: Else, we should have delegate functions for initialization of each input type and method for getting the input value... and more data sources for each...
-        
     }
 
     public class Table
